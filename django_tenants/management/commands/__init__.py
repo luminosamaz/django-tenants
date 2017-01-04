@@ -158,8 +158,7 @@ class SyncCommon(BaseCommand):
             else:
                 self.sync_tenant = True
         elif not self.sync_public and not self.sync_tenant:
-            # no options set, sync both
-            self.sync_tenant = True
+            # no options set, sync public
             self.sync_public = True
 
         if hasattr(settings, 'TENANT_APPS'):
