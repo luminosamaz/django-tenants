@@ -60,7 +60,7 @@ class Command(LoadDataCommand):
         # If fixtures / test data need to be in a particular schema, we need to
         # create the schema before loading fixtures that may use it. Because
         # fixtures are loaded before any "setUp" code is run, we do this here.
-        if settings.TEST_SCHEMA and settings.TEST_SCHEMA != 'public':
+        if settings.TESTING and settings.TEST_SCHEMA and settings.TEST_SCHEMA != 'public':
             self._create_schema(settings.TEST_SCHEMA)
 
         # Django's test suite repeatedly tries to load initial_data fixtures
@@ -133,7 +133,7 @@ class Command(LoadDataCommand):
                         loaded_objects_in_fixture += 1
                         self.models.add(obj.object.__class__)
 
-                        if settings.TEST_SCHEMA and obj.object._meta.app_label in settings.TENANT_APPS:
+                        if settings.TESTING and settings.TEST_SCHEMA and obj.object._meta.app_label in settings.TENANT_APPS:
                             old_schema = (connection.tenant, connection.schema_name, connection.include_public_schema)
                             connection.set_schema(settings.TEST_SCHEMA)
 
@@ -148,10 +148,9 @@ class Command(LoadDataCommand):
                             },)
                             raise
 
-                        if settings.TEST_SCHEMA and old_schema:
-                            connection.tenant = old_schema[0]
-                            connection.schema_name = old_schema[1]
-                            connection.include_public_schema = old_schema[2]
+                        if settings.TESTING and settings.TEST_SCHEMA and old_schema:
+                            (connection.tenant, connection.schema_name,
+                             connection.include_public_schema) = old_schema
                             connection.set_settings_schema(connection.schema_name)
 
                 self.loaded_object_count += loaded_objects_in_fixture
